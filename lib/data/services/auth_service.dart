@@ -3,7 +3,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../models/event_model.dart';
+import '../models/event_model.dart' show UserModel;
 
 // ─── Auth State Stream Provider ───────────────────────────────────────────────
 final authStateProvider = StreamProvider<User?>((ref) {
