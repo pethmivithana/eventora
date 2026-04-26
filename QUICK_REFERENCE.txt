@@ -1,0 +1,134 @@
+================================================================================
+                    EVENTORA - QUICK REFERENCE GUIDE
+================================================================================
+
+🚀 FASTEST WAY TO GET RUNNING (Copy & Paste):
+
+1. Install dependencies:
+   $ flutter pub get
+
+2. Setup Firebase (auto-generates firebase_options.dart):
+   $ dart pub global activate flutterfire_cli
+   $ flutterfire configure
+
+3. Run the app:
+   $ flutter run
+
+================================================================================
+                         ESSENTIAL COMMANDS
+================================================================================
+
+Setup Commands:
+  flutter pub get                  → Install all dependencies
+  flutter pub upgrade              → Update all dependencies
+  flutterfire configure            → Setup Firebase credentials
+
+Running:
+  flutter run                      → Run on default device
+  flutter run -d emulator-5554     → Run on Android emulator
+  flutter run -d iPhone14          → Run on iOS simulator
+  flutter devices                  → List all connected devices
+
+Debugging & Analysis:
+  flutter analyze                  → Find code issues
+  flutter clean                    → Clean build artifacts
+  flutter format lib/              → Auto-format Dart code
+  flutter pub outdated             → Check for outdated packages
+
+================================================================================
+                    WHAT WAS FIXED IN YOUR PROJECT
+================================================================================
+
+✅ pubspec.yaml
+   - Added: flutter_riverpod (state management)
+   - Added: go_router (navigation)
+   - Added: flutter_animate (animations)
+   - Added: flutter_slidable, shimmer, connectivity_plus
+   - Added: google_fonts, uuid, intl
+
+✅ lib/firebase_options.dart
+   - Replaced placeholders with clear instructions
+   - Added Firebase setup guide
+   - Ready for flutterfire configure
+
+✅ lib/data/services/auth_service.dart
+   - Fixed import paths for UserModel
+   - All references correct
+
+================================================================================
+                      FIREBASE SETUP CHECKLIST
+================================================================================
+
+[ ] Create Firebase project at console.firebase.google.com
+[ ] Run: flutterfire configure (auto-generates credentials)
+[ ] Enable Authentication (Email/Password) in Firebase
+[ ] Create Firestore Database in test mode
+[ ] Update Firestore Security Rules (see README_SETUP.md)
+[ ] Run: flutter run
+
+================================================================================
+                         KEY FILE LOCATIONS
+================================================================================
+
+Firebase Config:           lib/firebase_options.dart
+Authentication Logic:      lib/data/services/auth_service.dart
+Navigation Setup:          lib/core/router/app_router.dart
+Theme & Styling:           lib/core/theme/app_theme.dart
+Home Screen:               lib/presentation/events/home_screen.dart
+Login Screen:              lib/presentation/auth/login_screen.dart
+
+================================================================================
+                           COMMON ISSUES
+================================================================================
+
+"firebase_options.dart not found"
+  → Run: flutterfire configure
+
+"Pod install errors" (iOS)
+  → Run: cd ios && rm -rf Pods Podfile.lock && cd .. && flutter pub get
+
+"Device not found"
+  → Run: flutter devices
+  → Start emulator: emulator -avd Pixel_4_API_30
+
+"Permission errors"
+  → Run: flutter clean && flutter pub get && flutter run
+
+"Dependency conflicts"
+  → Run: flutter pub upgrade && flutter clean
+
+================================================================================
+                      NEXT STEPS AFTER SETUP
+================================================================================
+
+1. Customize Theme
+   - Edit: lib/core/theme/app_theme.dart
+   - Change colors, fonts, etc.
+
+2. Add Event Features
+   - Create models for: categories, attendees, notifications
+   - Add them to Firestore
+
+3. Improve Security
+   - Update Firestore security rules for production
+   - Add user role-based access control
+
+4. Deploy
+   - Build APK/AAB for Android: flutter build apk
+   - Build IPA for iOS: flutter build ios
+
+================================================================================
+                         DOCUMENTATION LINKS
+================================================================================
+
+Flutter Docs:        https://flutter.dev/docs
+Firebase + Flutter:  https://firebase.flutter.dev
+Flutter Riverpod:    https://riverpod.dev
+GoRouter:           https://pub.dev/packages/go_router
+
+================================================================================
+
+Questions? Check README_SETUP.md for detailed instructions!
+All library code is fixed and ready to run. 🎉
+
+================================================================================
