@@ -19,17 +19,22 @@ final appRouterProvider = Provider<GoRouter>((ref) {
   return GoRouter(
     initialLocation: AppConstants.loginRoute,
     redirect: (context, state) {
-      final isLoading = authState.isLoading;
+      // Check auth state - handle all cases
       final isAuthenticated = authState.valueOrNull != null;
       final isOnAuth = state.matchedLocation == AppConstants.loginRoute ||
           state.matchedLocation == AppConstants.registerRoute;
 
-      // While loading, stay on current route (native splash will be shown)
-      if (isLoading) return null;
+      // If not authenticated and not on auth page, go to login
+      if (!isAuthenticated && !isOnAuth) {
+        return AppConstants.loginRoute;
+      }
+      
+      // If authenticated and on auth page, go to home
+      if (isAuthenticated && isOnAuth) {
+        return AppConstants.homeRoute;
+      }
 
-      if (!isAuthenticated && !isOnAuth) return AppConstants.loginRoute;
-      if (isAuthenticated && isOnAuth) return AppConstants.homeRoute;
-
+      // Otherwise, allow navigation as-is
       return null;
     },
     routes: [
