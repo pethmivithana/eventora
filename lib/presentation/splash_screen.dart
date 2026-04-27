@@ -23,14 +23,17 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
   }
 
   Future<void> _navigate() async {
-    await Future.delayed(const Duration(milliseconds: 2000));
+    await Future.delayed(const Duration(milliseconds: 2500));
     if (!mounted) return;
 
-    final user = ref.read(currentUserProvider);
+    // Use authStateProvider to check auth state properly
+    final authState = ref.read(authStateProvider);
+    final user = authState.valueOrNull;
+    
     if (user != null) {
-      context.go(AppConstants.homeRoute);
+      if (mounted) context.go(AppConstants.homeRoute);
     } else {
-      context.go(AppConstants.loginRoute);
+      if (mounted) context.go(AppConstants.loginRoute);
     }
   }
 

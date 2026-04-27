@@ -20,13 +20,17 @@ final appRouterProvider = Provider<GoRouter>((ref) {
   return GoRouter(
     initialLocation: AppConstants.splashRoute,
     redirect: (context, state) {
+      final isLoading = authState.isLoading;
       final isAuthenticated = authState.valueOrNull != null;
       final isOnAuth = state.matchedLocation == AppConstants.loginRoute ||
           state.matchedLocation == AppConstants.registerRoute;
       final isOnSplash =
           state.matchedLocation == AppConstants.splashRoute;
 
-      if (isOnSplash) return null;
+      // Stay on splash while loading
+      if (isLoading) return isOnSplash ? null : AppConstants.splashRoute;
+      
+      if (isOnSplash) return isAuthenticated ? AppConstants.homeRoute : AppConstants.loginRoute;
 
       if (!isAuthenticated && !isOnAuth) return AppConstants.loginRoute;
       if (isAuthenticated && isOnAuth) return AppConstants.homeRoute;
