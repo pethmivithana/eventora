@@ -11,26 +11,21 @@ import '../../presentation/events/create_edit_event_screen.dart';
 import '../../presentation/events/event_detail_screen.dart';
 import '../../presentation/events/home_screen.dart';
 import '../../presentation/profile/profile_screen.dart';
-import '../../presentation/splash_screen.dart';
 import '../constants/app_constants.dart';
 
 final appRouterProvider = Provider<GoRouter>((ref) {
   final authState = ref.watch(authStateProvider);
 
   return GoRouter(
-    initialLocation: AppConstants.splashRoute,
+    initialLocation: AppConstants.loginRoute,
     redirect: (context, state) {
       final isLoading = authState.isLoading;
       final isAuthenticated = authState.valueOrNull != null;
       final isOnAuth = state.matchedLocation == AppConstants.loginRoute ||
           state.matchedLocation == AppConstants.registerRoute;
-      final isOnSplash =
-          state.matchedLocation == AppConstants.splashRoute;
 
-      // Stay on splash while loading
-      if (isLoading) return isOnSplash ? null : AppConstants.splashRoute;
-      
-      if (isOnSplash) return isAuthenticated ? AppConstants.homeRoute : AppConstants.loginRoute;
+      // While loading, stay on current route (native splash will be shown)
+      if (isLoading) return null;
 
       if (!isAuthenticated && !isOnAuth) return AppConstants.loginRoute;
       if (isAuthenticated && isOnAuth) return AppConstants.homeRoute;
@@ -38,10 +33,6 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       return null;
     },
     routes: [
-      GoRoute(
-        path: AppConstants.splashRoute,
-        builder: (_, __) => const SplashScreen(),
-      ),
       GoRoute(
         path: AppConstants.loginRoute,
         pageBuilder: (_, state) => _fadeTransition(

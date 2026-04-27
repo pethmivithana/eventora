@@ -13,6 +13,9 @@ dependencies:
 
   # UI & Icons
   cupertino_icons: ^1.0.6
+  
+  # Native Splash Screen
+  flutter_native_splash: ^2.3.8
 
   # Firebase (Dart 3.5 compatible stable set)
   firebase_core: ^2.30.0
@@ -56,3 +59,18 @@ dev_dependencies:
 
 flutter:
   uses-material-design: true
+
+# Native Splash Screen Configuration
+flutter_native_splash:
+  color: "#FFFFFF"
+  color_dark: "#1F1F1F"
+  image: assets/images/logo.png
+  image_dark: assets/images/logo.png
+  android_12:
+    image: assets/images/logo.png
+    image_dark: assets/images/logo.png
+    icon_background_color: "#FFFFFF"
+    icon_background_color_dark: "#1F1F1F"
+  web: false
+  android: true
+  ios: true
