@@ -311,9 +311,10 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
             style: Theme.of(context).textTheme.bodyLarge,
           ),
         ],
-      ).animate().fadeIn(duration: 400.ms).scale(begin: const Size(0.9, 0.9)),
+      ).animate().fadeIn(duration: 400.ms).scale(begin: const Offset(0.9, 0.9)),
     );
   }
+
 
   Widget _buildErrorState(Object e) {
     return Center(
