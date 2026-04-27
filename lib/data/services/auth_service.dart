@@ -7,7 +7,11 @@ import '../models/event_model.dart' show UserModel;
 
 // ─── Auth State Stream Provider ───────────────────────────────────────────────
 final authStateProvider = StreamProvider<User?>((ref) {
-  return FirebaseAuth.instance.authStateChanges();
+  print('[AuthService] Auth state provider watching...');
+  return FirebaseAuth.instance.authStateChanges().map((user) {
+    print('[AuthService] Auth state changed: user=${user?.uid ?? "null"}');
+    return user;
+  });
 });
 
 // ─── Current User Provider ────────────────────────────────────────────────────

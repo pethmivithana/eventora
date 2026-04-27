@@ -18,24 +18,52 @@ final appRouterProvider = Provider<GoRouter>((ref) {
 
   return GoRouter(
     initialLocation: AppConstants.loginRoute,
+    errorBuilder: (context, state) => Scaffold(
+      body: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const Text('Route Error'),
+            const SizedBox(height: 16),
+            Text(state.error?.toString() ?? 'Unknown error'),
+          ],
+        ),
+      ),
+    ),
     redirect: (context, state) {
-      // Check auth state - handle all cases
+      // Handle different auth states
+      if (authState.isLoading) {
+        // While loading, stay on current route or login
+        return state.matchedLocation == AppConstants.loginRoute ||
+                state.matchedLocation == AppConstants.registerRoute
+            ? null
+            : AppConstants.loginRoute;
+      }
+
+      if (authState.hasError) {
+        // If there's an error, go to login
+        return AppConstants.loginRoute;
+      }
+
       final isAuthenticated = authState.valueOrNull != null;
       final isOnAuth = state.matchedLocation == AppConstants.loginRoute ||
           state.matchedLocation == AppConstants.registerRoute;
 
-      // If not authenticated and not on auth page, go to login
-      if (!isAuthenticated && !isOnAuth) {
-        return AppConstants.loginRoute;
-      }
-      
-      // If authenticated and on auth page, go to home
-      if (isAuthenticated && isOnAuth) {
-        return AppConstants.homeRoute;
+      // If authenticated, allow navigation (but redirect from auth pages to home)
+      if (isAuthenticated) {
+        if (isOnAuth) {
+          return AppConstants.homeRoute;
+        }
+        return null;
       }
 
-      // Otherwise, allow navigation as-is
-      return null;
+      // If not authenticated, only allow auth pages
+      if (isOnAuth) {
+        return null;
+      }
+
+      // Otherwise redirect to login
+      return AppConstants.loginRoute;
     },
     routes: [
       GoRoute(
