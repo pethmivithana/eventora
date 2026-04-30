@@ -22,6 +22,16 @@ class CreateEditEventScreen extends ConsumerStatefulWidget {
       _CreateEditEventScreenState();
 }
 
+class CreateEditEventScreen extends ConsumerStatefulWidget {
+  final EventModel? event; // null = create, non-null = edit
+
+  const CreateEditEventScreen({super.key, this.event});
+
+  @override
+  ConsumerState<CreateEditEventScreen> createState() =>
+      _CreateEditEventScreenState();
+}
+
 class _CreateEditEventScreenState
     extends ConsumerState<CreateEditEventScreen> {
   final _formKey = GlobalKey<FormState>();
@@ -32,6 +42,8 @@ class _CreateEditEventScreenState
   DateTime? _selectedDate;
   String _selectedCategory = AppConstants.categories[1]; // skip 'All'
   bool _loading = false;
+  bool _isPublic = true;
+  List<String> _invitedUsers = [];
 
   bool get _isEditing => widget.event != null;
 
@@ -44,6 +56,8 @@ class _CreateEditEventScreenState
     _locationCtrl = TextEditingController(text: e?.location ?? '');
     _selectedDate = e?.date;
     _selectedCategory = e?.category ?? AppConstants.categories[1];
+    _isPublic = e?.isPublic ?? true;
+    _invitedUsers = List.from(e?.invitedUsers ?? []);
   }
 
   @override
@@ -118,6 +132,8 @@ class _CreateEditEventScreenState
           date: _selectedDate,
           location: _locationCtrl.text.trim(),
           category: _selectedCategory,
+          isPublic: _isPublic,
+          invitedUsers: _invitedUsers,
         );
         await repo.updateEvent(updated);
       } else {
@@ -127,6 +143,8 @@ class _CreateEditEventScreenState
           date: _selectedDate!,
           location: _locationCtrl.text.trim(),
           category: _selectedCategory,
+          isPublic: _isPublic,
+          invitedUsers: _invitedUsers,
         );
       }
 
@@ -317,12 +335,156 @@ class _CreateEditEventScreenState
                     );
                   }).toList(),
                 ).animate().fadeIn(delay: 250.ms),
+                const SizedBox(height: 32),
+
+                // Privacy Settings
+                Text('Event Privacy',
+                    style: Theme.of(context)
+                        .textTheme
+                        .labelLarge
+                        ?.copyWith(fontSize: 13)),
+                const SizedBox(height: 12),
+                
+                // Public / Private toggle
+                Container(
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(14),
+                    border: Border.all(color: Theme.of(context).dividerColor),
+                  ),
+                  child: Column(
+                    children: [
+                      GestureDetector(
+                        onTap: () => setState(() => _isPublic = true),
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                          decoration: BoxDecoration(
+                            color: _isPublic
+                                ? AppColors.violet.withOpacity(0.1)
+                                : Colors.transparent,
+                            borderRadius: const BorderRadius.only(
+                              topLeft: Radius.circular(14),
+                              topRight: Radius.circular(14),
+                            ),
+                          ),
+                          child: Row(
+                            children: [
+                              Radio<bool>(
+                                value: true,
+                                groupValue: _isPublic,
+                                onChanged: (v) => setState(() => _isPublic = v!),
+                                activeColor: AppColors.violet,
+                              ),
+                              const SizedBox(width: 8),
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    const Text('Public Event',
+                                        style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14)),
+                                    const SizedBox(height: 2),
+                                    Text('Anyone on the app can see this event',
+                                        style: TextStyle(
+                                          fontSize: 12,
+                                          color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
+                                        )),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                      Divider(height: 0, color: Theme.of(context).dividerColor),
+                      GestureDetector(
+                        onTap: () => setState(() => _isPublic = false),
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                          decoration: BoxDecoration(
+                            color: !_isPublic
+                                ? AppColors.violet.withOpacity(0.1)
+                                : Colors.transparent,
+                            borderRadius: const BorderRadius.only(
+                              bottomLeft: Radius.circular(14),
+                              bottomRight: Radius.circular(14),
+                            ),
+                          ),
+                          child: Row(
+                            children: [
+                              Radio<bool>(
+                                value: false,
+                                groupValue: _isPublic,
+                                onChanged: (v) => setState(() => _isPublic = v!),
+                                activeColor: AppColors.violet,
+                              ),
+                              const SizedBox(width: 8),
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    const Text('Private Event',
+                                        style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14)),
+                                    const SizedBox(height: 2),
+                                    Text('Only invited people can see this',
+                                        style: TextStyle(
+                                          fontSize: 12,
+                                          color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
+                                        )),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ).animate().fadeIn(delay: 280.ms),
+                
+                if (!_isPublic) ...[
+                  const SizedBox(height: 12),
+                  GestureDetector(
+                    onTap: () => context.push('/invite-users', extra: _invitedUsers).then((result) {
+                      if (result != null) {
+                        setState(() => _invitedUsers = result);
+                      }
+                    }),
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                      decoration: BoxDecoration(
+                        color: Theme.of(context).inputDecorationTheme.fillColor,
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(color: AppColors.violet.withOpacity(0.3)),
+                      ),
+                      child: Row(
+                        children: [
+                          Icon(Icons.person_add_rounded, color: AppColors.violet, size: 20),
+                          const SizedBox(width: 10),
+                          Expanded(
+                            child: Text(
+                              _invitedUsers.isEmpty
+                                  ? 'Invite people to this event'
+                                  : '${_invitedUsers.length} invited',
+                              style: TextStyle(
+                                fontSize: 14,
+                                color: _invitedUsers.isEmpty
+                                    ? Theme.of(context).colorScheme.onSurface.withOpacity(0.5)
+                                    : Theme.of(context).colorScheme.onSurface,
+                              ),
+                            ),
+                          ),
+                          Icon(Icons.chevron_right_rounded, color: AppColors.violet.withOpacity(0.5)),
+                        ],
+                      ),
+                    ),
+                  ).animate().fadeIn(delay: 300.ms),
+                ],
+                
                 const SizedBox(height: 40),
                 GradientButton(
                   label: _isEditing ? 'Save Changes' : 'Create Event 🎉',
                   loading: _loading,
                   onTap: _submit,
-                ).animate().fadeIn(delay: 300.ms),
+                ).animate().fadeIn(delay: 320.ms),
                 const SizedBox(height: 24),
               ],
             ),

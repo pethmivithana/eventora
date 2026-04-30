@@ -86,4 +86,30 @@ class AuthService {
           .update({'name': name});
     }
   }
+
+  /// Get all users except current user
+  Future<List<UserModel>> getAllUsers() async {
+    final snapshot = await _firestore.collection('users').get();
+    return snapshot.docs
+        .map((doc) => UserModel.fromFirestore(doc))
+        .where((user) => user.id != _auth.currentUser?.uid)
+        .toList();
+  }
+
+  /// Get user by ID
+  Future<UserModel?> getUserById(String userId) async {
+    final doc = await _firestore.collection('users').doc(userId).get();
+    if (!doc.exists) return null;
+    return UserModel.fromFirestore(doc);
+  }
+
+  /// Get multiple users by IDs
+  Future<List<UserModel>> getUsersByIds(List<String> userIds) async {
+    if (userIds.isEmpty) return [];
+    final snapshot = await _firestore
+        .collection('users')
+        .where(FieldPath.documentId, whereIn: userIds)
+        .get();
+    return snapshot.docs.map((doc) => UserModel.fromFirestore(doc)).toList();
+  }
 }
