@@ -10,9 +10,12 @@ class EventModel extends Equatable {
   final String location;
   final String category;
   final String status; // 'Upcoming' | 'Completed'
-  final String userId;
+  final String userId; // creator/owner
   final bool isGoing; // RSVP
   final DateTime createdAt;
+  final bool isPublic; // true: visible to all, false: private invite-only
+  final List<String> invitedUserIds; // list of invited user IDs
+  final Map<String, String> rsvpStatus; // userId -> 'going' | 'notGoing' | 'pending'
 
   const EventModel({
     required this.id,
@@ -25,6 +28,9 @@ class EventModel extends Equatable {
     required this.userId,
     required this.isGoing,
     required this.createdAt,
+    this.isPublic = true,
+    this.invitedUserIds = const [],
+    this.rsvpStatus = const {},
   });
 
   // ── Computed Properties ──────────────────────────────────────────────────
@@ -34,6 +40,9 @@ class EventModel extends Equatable {
   // ── Factory ──────────────────────────────────────────────────────────────
   factory EventModel.fromFirestore(DocumentSnapshot doc) {
     final data = doc.data() as Map<String, dynamic>;
+    final rsvpData = data['rsvpStatus'] as Map<String, dynamic>?;
+    final invitedList = data['invitedUserIds'] as List?;
+
     return EventModel(
       id: doc.id,
       title: data['title'] ?? '',
@@ -47,6 +56,9 @@ class EventModel extends Equatable {
       createdAt: data['createdAt'] != null
           ? (data['createdAt'] as Timestamp).toDate()
           : DateTime.now(),
+      isPublic: data['isPublic'] ?? true,
+      invitedUserIds: invitedList != null ? List<String>.from(invitedList) : [],
+      rsvpStatus: rsvpData != null ? Map<String, String>.from(rsvpData) : {},
     );
   }
 
@@ -62,6 +74,9 @@ class EventModel extends Equatable {
       'userId': userId,
       'isGoing': isGoing,
       'createdAt': Timestamp.fromDate(createdAt),
+      'isPublic': isPublic,
+      'invitedUserIds': invitedUserIds,
+      'rsvpStatus': rsvpStatus,
     };
   }
 
@@ -77,6 +92,9 @@ class EventModel extends Equatable {
     String? userId,
     bool? isGoing,
     DateTime? createdAt,
+    bool? isPublic,
+    List<String>? invitedUserIds,
+    Map<String, String>? rsvpStatus,
   }) {
     return EventModel(
       id: id ?? this.id,
@@ -89,14 +107,18 @@ class EventModel extends Equatable {
       userId: userId ?? this.userId,
       isGoing: isGoing ?? this.isGoing,
       createdAt: createdAt ?? this.createdAt,
+      isPublic: isPublic ?? this.isPublic,
+      invitedUserIds: invitedUserIds ?? this.invitedUserIds,
+      rsvpStatus: rsvpStatus ?? this.rsvpStatus,
     );
   }
 
   @override
   List<Object?> get props => [
-        id, title, description, date, location,
-        category, status, userId, isGoing, createdAt,
-      ];
+    id, title, description, date, location,
+    category, status, userId, isGoing, createdAt,
+    isPublic, invitedUserIds, rsvpStatus,
+  ];
 }
 
 // ─── User Model ───────────────────────────────────────────────────────────────
@@ -126,10 +148,10 @@ class UserModel extends Equatable {
   }
 
   Map<String, dynamic> toMap() => {
-        'name': name,
-        'email': email,
-        'createdAt': Timestamp.fromDate(createdAt),
-      };
+    'name': name,
+    'email': email,
+    'createdAt': Timestamp.fromDate(createdAt),
+  };
 
   @override
   List<Object?> get props => [id, name, email, createdAt];
