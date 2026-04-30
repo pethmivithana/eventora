@@ -8,24 +8,28 @@ import 'core/router/app_router.dart';
 import 'core/theme/app_theme.dart';
 import 'firebase_options.dart';
 
-void main() async {
+Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  // Lock to portrait
+  // Lock orientation
   await SystemChrome.setPreferredOrientations([
     DeviceOrientation.portraitUp,
     DeviceOrientation.portraitDown,
   ]);
 
-  await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform,
-  );
+  // SAFE Firebase init (prevents duplicate crash)
+  try {
+    if (Firebase.apps.isEmpty) {
+      await Firebase.initializeApp(
+        options: DefaultFirebaseOptions.currentPlatform,
+      );
+    }
+  } catch (e) {
+    // If already initialized, ignore safely
+    debugPrint("Firebase init skipped: $e");
+  }
 
-  runApp(
-    const ProviderScope(
-      child: Eventora(),
-    ),
-  );
+  runApp(const ProviderScope(child: Eventora()));
 }
 
 class Eventora extends ConsumerWidget {

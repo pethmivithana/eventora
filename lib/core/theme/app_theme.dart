@@ -6,7 +6,6 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 // ─── Color Palette ────────────────────────────────────────────────────────────
 class AppColors {
-  // Brand
   static const violet = Color(0xFF7C3AED);
   static const violetLight = Color(0xFFA78BFA);
   static const violetDark = Color(0xFF5B21B6);
@@ -15,7 +14,6 @@ class AppColors {
   static const emerald = Color(0xFF10B981);
   static const sky = Color(0xFF0EA5E9);
 
-  // Light
   static const lightBg = Color(0xFFF8F5FF);
   static const lightSurface = Color(0xFFFFFFFF);
   static const lightCard = Color(0xFFFFFFFF);
@@ -23,7 +21,6 @@ class AppColors {
   static const lightTextPrimary = Color(0xFF1A1033);
   static const lightTextSecondary = Color(0xFF6B6080);
 
-  // Dark
   static const darkBg = Color(0xFF0D0A1A);
   static const darkSurface = Color(0xFF160F2E);
   static const darkCard = Color(0xFF1E1640);
@@ -34,7 +31,7 @@ class AppColors {
 
 // ─── Theme Provider ───────────────────────────────────────────────────────────
 final themeModeProvider =
-    StateNotifierProvider<ThemeModeNotifier, ThemeMode>((ref) {
+StateNotifierProvider<ThemeModeNotifier, ThemeMode>((ref) {
   return ThemeModeNotifier();
 });
 
@@ -70,19 +67,18 @@ class AppTheme {
   static ThemeData _buildTheme({required Brightness brightness}) {
     final isDark = brightness == Brightness.dark;
 
-    final colorScheme = ColorScheme(
+    // FIX 1: Use ColorScheme.fromSeed for better Material 3 compatibility
+    // This ensures all required color slots (surfaceContainer, etc.) are filled correctly.
+    final colorScheme = ColorScheme.fromSeed(
+      seedColor: AppColors.violet,
       brightness: brightness,
       primary: AppColors.violet,
       onPrimary: Colors.white,
       secondary: AppColors.amber,
-      onSecondary: Colors.white,
+      surface: isDark ? AppColors.darkSurface : AppColors.lightSurface,
+      onSurface: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
       error: AppColors.rose,
-      onError: Colors.white,
-      surface:
-          isDark ? AppColors.darkSurface : AppColors.lightSurface,
-      onSurface: isDark
-          ? AppColors.darkTextPrimary
-          : AppColors.lightTextPrimary,
+      background: isDark ? AppColors.darkBg : AppColors.lightBg, // Required for some SDK versions
     );
 
     final textTheme = GoogleFonts.plusJakartaSansTextTheme(
@@ -91,58 +87,28 @@ class AppTheme {
           fontSize: 36,
           fontWeight: FontWeight.w800,
           letterSpacing: -1.2,
-          color: isDark
-              ? AppColors.darkTextPrimary
-              : AppColors.lightTextPrimary,
+          color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
         ),
         displayMedium: TextStyle(
           fontSize: 28,
           fontWeight: FontWeight.w700,
           letterSpacing: -0.8,
-          color: isDark
-              ? AppColors.darkTextPrimary
-              : AppColors.lightTextPrimary,
-        ),
-        headlineMedium: TextStyle(
-          fontSize: 22,
-          fontWeight: FontWeight.w700,
-          letterSpacing: -0.5,
-          color: isDark
-              ? AppColors.darkTextPrimary
-              : AppColors.lightTextPrimary,
+          color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
         ),
         titleLarge: TextStyle(
           fontSize: 18,
           fontWeight: FontWeight.w600,
-          color: isDark
-              ? AppColors.darkTextPrimary
-              : AppColors.lightTextPrimary,
-        ),
-        titleMedium: TextStyle(
-          fontSize: 16,
-          fontWeight: FontWeight.w500,
-          color: isDark
-              ? AppColors.darkTextPrimary
-              : AppColors.lightTextPrimary,
+          color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
         ),
         bodyLarge: TextStyle(
           fontSize: 15,
           fontWeight: FontWeight.w400,
-          color: isDark
-              ? AppColors.darkTextSecondary
-              : AppColors.lightTextSecondary,
+          color: isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary,
         ),
         bodyMedium: TextStyle(
           fontSize: 14,
           fontWeight: FontWeight.w400,
-          color: isDark
-              ? AppColors.darkTextSecondary
-              : AppColors.lightTextSecondary,
-        ),
-        labelLarge: const TextStyle(
-          fontSize: 14,
-          fontWeight: FontWeight.w600,
-          letterSpacing: 0.2,
+          color: isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary,
         ),
       ),
     );
@@ -151,20 +117,8 @@ class AppTheme {
       useMaterial3: true,
       colorScheme: colorScheme,
       textTheme: textTheme,
-      scaffoldBackgroundColor:
-          isDark ? AppColors.darkBg : AppColors.lightBg,
-      cardTheme: CardTheme(
-        color: isDark ? AppColors.darkCard : AppColors.lightCard,
-        elevation: 0,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(20),
-          side: BorderSide(
-            color:
-                isDark ? AppColors.darkBorder : AppColors.lightBorder,
-            width: 1,
-          ),
-        ),
-      ),
+      scaffoldBackgroundColor: isDark ? AppColors.darkBg : AppColors.lightBg,
+
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
         fillColor: isDark
@@ -172,42 +126,30 @@ class AppTheme {
             : AppColors.lightSurface,
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(14),
-          borderSide: BorderSide(
-              color: isDark
-                  ? AppColors.darkBorder
-                  : AppColors.lightBorder),
+          borderSide: BorderSide(color: isDark ? AppColors.darkBorder : AppColors.lightBorder),
         ),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(14),
-          borderSide: BorderSide(
-              color: isDark
-                  ? AppColors.darkBorder
-                  : AppColors.lightBorder),
+          borderSide: BorderSide(color: isDark ? AppColors.darkBorder : AppColors.lightBorder),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(14),
-          borderSide:
-              const BorderSide(color: AppColors.violet, width: 2),
+          borderSide: const BorderSide(color: AppColors.violet, width: 2),
         ),
-        contentPadding:
-            const EdgeInsets.symmetric(horizontal: 18, vertical: 16),
+        contentPadding: const EdgeInsets.symmetric(horizontal: 18, vertical: 16),
       ),
+
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
           backgroundColor: AppColors.violet,
           foregroundColor: Colors.white,
           elevation: 0,
-          padding:
-              const EdgeInsets.symmetric(horizontal: 28, vertical: 16),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(14),
-          ),
-          textStyle: const TextStyle(
-            fontSize: 15,
-            fontWeight: FontWeight.w600,
-          ),
+          padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 16),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+          textStyle: const TextStyle(fontSize: 15, fontWeight: FontWeight.w600),
         ),
       ),
+
       appBarTheme: AppBarTheme(
         backgroundColor: Colors.transparent,
         elevation: 0,
@@ -216,37 +158,11 @@ class AppTheme {
         titleTextStyle: GoogleFonts.plusJakartaSans(
           fontSize: 20,
           fontWeight: FontWeight.w700,
-          color: isDark
-              ? AppColors.darkTextPrimary
-              : AppColors.lightTextPrimary,
+          color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
         ),
         iconTheme: IconThemeData(
-          color: isDark
-              ? AppColors.darkTextPrimary
-              : AppColors.lightTextPrimary,
+          color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
         ),
-      ),
-      chipTheme: ChipThemeData(
-        backgroundColor:
-            isDark ? AppColors.darkCard : AppColors.lightBg,
-        selectedColor: AppColors.violet.withOpacity(0.15),
-        labelStyle: const TextStyle(fontSize: 13, fontWeight: FontWeight.w500),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(10),
-          side: BorderSide(
-              color: isDark
-                  ? AppColors.darkBorder
-                  : AppColors.lightBorder),
-        ),
-      ),
-      floatingActionButtonTheme: const FloatingActionButtonThemeData(
-        backgroundColor: AppColors.violet,
-        foregroundColor: Colors.white,
-        elevation: 4,
-      ),
-      dividerTheme: DividerThemeData(
-        color: isDark ? AppColors.darkBorder : AppColors.lightBorder,
-        thickness: 1,
       ),
     );
   }
